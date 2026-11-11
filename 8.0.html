@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Royal Asia 亚洲风味 · 中式外卖 · Aberdeen</title>
+<meta name="description" content="Royal Asia 亚洲风味 — 17 The Academy, Belmont St, Aberdeen. 100% Scottish beef, fresh daily. Open 7 days. 01224 394200.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%238E1B1B'/%3E%3Ccircle cx='32' cy='32' r='19' fill='%23B32025' stroke='white' stroke-width='1.5'/%3E%3Ctext x='32' y='39' font-size='17' fill='white' text-anchor='middle' font-family='serif' font-weight='bold'%3E%E9%A3%8E%E5%91%B3%3C/text%3E%3C/svg%3E">
+
+<!-- Fonts: 自托管镜像 -->
+<link rel="preconnect" href="https://miaoda.feishu.cn" crossorigin>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Manrope:wght@300;400;500;600;700;800&family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+
+<!-- Tailwind（按需工具类） -->
+<script src="https://fastly.jsdelivr.net/npm/@tailwindcss/browser@4/dist/index.global.js"></script>
+
+<!-- Swiper -->
+<link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<script src="https://fastly.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<!-- Leaflet 地图 -->
+<link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+/* ================= Design Tokens ================= */
+:root{
+  --red:#8E1B1B;          /* 主色：深红 */
+  --red-deep:#6E1014;
+  --red-bright:#B32025;
+  --gold:#B8894A;         /* 浅金 */
+  --gold-soft:#E8D5A8;
+  --pink-bright:#FFC0CB;  /* 新增：明亮玫瑰粉，用于主标题 */
+  --cream:#FAF3E7;        /* 米白背景 */
+  --paper:#FFFDF8;
+  --ink:#1A1210;
+  --muted:#5A4B3E;        /* 次要文字：加深 */
+  --line:#D9C9AE;         /* 分隔线：略深 */
+  --display:'Bodoni Moda','Noto Serif SC',serif;
+  --serif-sc:'Noto Serif SC',serif;
+  --body:'Manrope','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--body);color:var(--ink);background:var(--cream);line-height:1.6;font-weight:500;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+h1,h2,h3{margin:0;font-weight:600}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+.font-display{font-family:var(--display)}
+.font-sc{font-family:var(--serif-sc)}
+section{padding:96px 0}
+
+/* ================= Nav ================= */
+.nav{position:fixed;inset:0 0 auto 0;z-index:1000;background:rgba(250,243,231,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);transition:box-shadow .3s}
+.nav.scrolled{box-shadow:0 6px 24px rgba(80,20,10,.08)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:76px;max-width:1280px;margin:0 auto;padding:0 24px;gap:16px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand img{width:48px;height:48px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px var(--line)}
+.brand-name{line-height:1.15}
+.brand-name b{display:block;font-family:var(--display);font-size:19px;letter-spacing:.5px;color:var(--red)}
+.brand-name span{font-size:12px;color:var(--muted);letter-spacing:2px;font-weight:600}
+.nav-links{display:flex;gap:28px;list-style:none;margin:0;padding:0}
+.nav-links a{font-size:14px;font-weight:600;color:var(--ink);position:relative;padding:6px 0;opacity:.85;transition:opacity .2s}
+.nav-links a:hover{opacity:1;color:var(--red)}
+.nav-links a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:2px;background:var(--red);transition:width .25s}
+.nav-links a:hover::after{width:100%}
+.nav-right{display:flex;align-items:center;gap:14px}
+.lang-toggle{display:flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.lang-toggle button{border:0;background:transparent;padding:5px 14px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.lang-toggle button.active{background:var(--red);color:#fff}
+.nav-phone{display:flex;align-items:center;gap:8px;color:var(--red);font-weight:700;font-size:14px}
+.burger{display:none;border:0;background:none;font-size:22px;color:var(--red);padding:6px}
+.mobile-menu{display:none;position:fixed;inset:76px 0 0 0;background:var(--paper);z-index:999;padding:24px}
+.mobile-menu.open{display:block}
+.mobile-menu a{display:block;padding:14px 0;border-bottom:1px solid var(--line);font-size:18px;font-family:var(--serif-sc)}
+
+/* ================= Hero ================= */
+.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;overflow:hidden;padding:120px 24px 80px}
+.hero-bg{position:absolute;inset:0;background:url('image/hero1.jpg') center/cover no-repeat;transform:scale(1.05);background-color:#333}
+/* 强化遮罩：中间深色，上下渐黑，完美压住食物背景，增加白字对比度 */
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at center, rgba(40,5,5,.5) 0%, rgba(60,10,10,.85) 100%), linear-gradient(180deg, rgba(20,0,0,.4) 0%, transparent 20%, transparent 80%, rgba(20,0,0,.7) 100%)}
+.hero-inner{position:relative;z-index:2;max-width:820px}
+/* 小字：顶端英文字母 */
+.hero-kicker{font-size:15px;letter-spacing:3px;color:var(--pink-bright);margin-bottom:22px;font-weight:700;text-shadow:0 2px 4px rgba(0,0,0,.6)}
+/* 主标题：英文与中文，明亮粉色 */
+.hero h1{font-family:var(--display);font-size:clamp(48px,9vw,96px);line-height:1;letter-spacing:1px;color:var(--pink-bright);text-shadow:0 4px 16px rgba(0,0,0,.5)}
+.hero h1 .cn{display:block;font-family:var(--serif-sc);font-size:clamp(24px,4vw,38px);letter-spacing:8px;margin-top:16px;color:var(--pink-bright);font-weight:700;white-space:nowrap;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+/* 副标题：纯白，清晰明亮 */
+.hero-sub{margin:26px auto 36px;font-size:clamp(18px,2.4vw,22px);color:#FFFFFF;max-width:540px;font-weight:500;text-shadow:0 2px 8px rgba(0,0,0,.7)}
+.hero-cta{display:inline-flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 34px;border-radius:999px;font-weight:700;font-size:15px;border:1.5px solid transparent;transition:all .25s}
+.btn-red{background:var(--red);color:#fff;border-color:var(--red);box-shadow:0 8px 20px rgba(110,16,20,.4)}
+.btn-red:hover{background:var(--red-bright);transform:translateY(-2px);box-shadow:0 12px 24px rgba(110,16,20,.5)}
+.btn-ghost{border-color:rgba(255,255,255,.8);color:#fff;background:rgba(0,0,0,.25);backdrop-filter:blur(4px)}
+.btn-ghost:hover{background:rgba(255,255,255,.2);border-color:#fff}
+.btn-dark{background:var(--ink);color:#fff}
+/* 底部信息栏：明亮粉色 */
+.hero-meta{position:relative;z-index:2;margin-top:64px;display:flex;gap:36px;justify-content:center;flex-wrap:wrap;font-size:16px;color:var(--pink-bright);font-weight:600;text-shadow:0 2px 6px rgba(0,0,0,.8)}
+.hero-meta div{display:flex;align-items:center;gap:8px}
+.hero-meta i{color:var(--pink-bright)}
+
+/* ================= Section head ================= */
+.sec-head{text-align:center;max-width:640px;margin:0 auto 56px}
+.sec-head .kicker{color:var(--red);font-weight:800;letter-spacing:3px;font-size:12.5px;margin-bottom:12px}
+.sec-head h2{font-family:var(--display);font-size:clamp(32px,4.5vw,48px);line-height:1.1;color:var(--ink)}
+.sec-head h2 .cn{font-family:var(--serif-sc);letter-spacing:6px}
+.sec-head p{color:#4A3C30;margin-top:16px;font-size:15px;font-weight:500}
+
+/* ================= Featured ================= */
+#featured{background:var(--paper)}
+.swiper{padding-bottom:12px}
+.dish-card{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:transform .3s,box-shadow .3s}
+.dish-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(110,16,20,.12)}
+.dish-card .ph{aspect-ratio:4/3;overflow:hidden; background-color: #eae0cf; display:flex; align-items:center; justify-content:center;}
+.dish-card img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.dish-card:hover img{transform:scale(1.06)}
+.dish-card .body{padding:18px 20px 22px}
+.dish-card .num{font-size:11px;color:var(--gold);letter-spacing:2px;font-weight:800}
+.dish-card h3{font-size:17px;margin:6px 0 4px;font-family:var(--serif-sc);font-weight:700;color:var(--ink)}
+.dish-card .price{font-family:var(--display);font-size:22px;color:var(--red);font-weight:800}
+.swiper-button-next,.swiper-button-prev{color:var(--red)}
+.swiper-pagination-bullet-active{background:var(--red)}
+
+/* ================= About ================= */
+#about .grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.about-img{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:4/3;box-shadow:0 24px 60px rgba(80,20,10,.15); background-color: #eae0cf; display:flex; align-items:center; justify-content:center;}
+.about-img img{width:100%;height:100%;object-fit:cover}
+.about-badge{position:absolute;left:-18px;bottom:-18px;background:var(--red);color:#fff;padding:22px 26px;border-radius:14px;box-shadow:0 16px 36px rgba(110,16,20,.3)}
+.about-badge b{font-family:var(--display);font-size:34px;display:block;line-height:1}
+.about-badge span{font-size:12.5px;color:var(--gold-soft);font-weight:600}
+.about-copy h2{font-family:var(--display);font-size:clamp(28px,3.5vw,40px);line-height:1.15;margin-bottom:20px;color:var(--ink)}
+.about-copy>p{color:#4A3C30;margin-bottom:28px;font-weight:500}
+.fact{display:flex;gap:16px;padding:18px 0;border-top:1px solid var(--line)}
+.fact i{color:var(--red);font-size:20px;margin-top:3px;width:28px;text-align:center}
+.fact b{display:block;font-size:15.5px;font-family:var(--serif-sc);color:var(--ink);font-weight:700}
+.fact span{color:var(--muted);font-size:13.5px}
+
+/* ================= Menu ================= */
+#menu{background:var(--cream)}
+.chips{display:flex;gap:10px;overflow-x:auto;padding:6px 2px 16px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 18px;font-size:13.5px;font-weight:600;color:var(--ink);transition:all .2s}
+.chip.active{background:var(--red);color:#fff;border-color:var(--red);font-weight:700}
+.chip-count{font-size:11px;opacity:.7;margin-left:4px;font-weight:700}
+.acc{background:var(--paper);border:1px solid var(--line);border-radius:14px;margin-bottom:14px;overflow:hidden}
+.acc-head{width:100%;display:flex;align-items:center;gap:16px;padding:18px 22px;background:none;border:0;text-align:left;cursor:pointer}
+.acc-head .bar{width:4px;align-self:stretch;background:var(--red);border-radius:4px}
+.acc-head .titles{flex:1;min-width:0}
+.acc-head .titles .en{font-family:var(--display);font-size:19px;font-weight:800;color:var(--ink)}
+.acc-head .titles .cn{font-family:var(--serif-sc);font-size:13px;color:var(--muted);margin-left:10px;letter-spacing:2px;font-weight:600}
+.acc-head .cnt{font-size:12px;color:var(--red);font-weight:800;background:#fff;border:1px solid var(--line);padding:3px 10px;border-radius:999px}
+.acc-head .chev{color:var(--muted);transition:transform .3s}
+.acc.open .acc-head .chev{transform:rotate(180deg)}
+.acc-body{display:none;border-top:1px solid var(--line)}
+.acc.open .acc-body{display:block}
+.acc-note{padding:12px 22px;font-size:12.5px;color:var(--red);font-weight:600;background:#FCF8F0;border-bottom:1px dashed var(--line)}
+.items{display:grid;grid-template-columns:1fr 1fr;gap:0 40px;padding:14px 22px 22px}
+.item{display:flex;align-items:baseline;gap:10px;padding:10px 0;border-bottom:1px dotted var(--line);font-size:14.5px;color:#241A14;font-weight:600} 
+.item:last-child{border-bottom:0}
+.item .n{color:var(--gold);font-weight:800;font-size:12px;min-width:24px}
+.item .nm{flex:1;min-width:0}
+.item .dot{flex:1;border-bottom:1px dotted #cbb99c;transform:translateY(-4px);min-width:24px}
+.item .pr{font-family:var(--display);font-weight:800;color:var(--red);white-space:nowrap}
+.menu-legal{margin-top:26px;text-align:center;color:var(--muted);font-size:13px;font-weight:500}
+
+/* ================= Find us ================= */
+#find .grid{display:grid;grid-template-columns:1.6fr 1fr;gap:32px}
+#map{height:460px;border-radius:18px;border:1px solid var(--line);z-index:1}
+.info-card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:32px;display:flex;flex-direction:column;gap:20px}
+.info-card h3{font-family:var(--serif-sc);font-size:20px;color:var(--red);font-weight:700}
+.info-row{display:flex;gap:14px;font-size:14.5px}
+.info-row i{color:var(--red);width:22px;margin-top:3px}
+.info-row b{display:block;color:var(--ink)}
+.info-row span{color:var(--muted);font-weight:500}
+.leaflet-popup-content{font-family:var(--body)}
+.seal-pin{background:none;border:none}
+.seal-pin i{display:block;width:20px;height:20px;background:var(--red);border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+
+/* ================= Reservation ================= */
+#reservation{background:var(--paper)}
+.res-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:48px;align-items:start}
+.res-side h2{font-family:var(--display);font-size:clamp(28px,3.5vw,40px);line-height:1.15;margin-bottom:18px;color:var(--ink)}
+.res-side p{color:var(--muted);font-weight:500}
+.res-side .line{display:flex;gap:12px;align-items:center;margin-top:18px;font-size:14.5px;font-weight:600}
+.res-side .line i{color:var(--red)}
+form{background:var(--cream);border:1px solid var(--line);border-radius:18px;padding:32px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.field label{font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.5px}
+.field input,.field select,.field textarea{border:1px solid var(--line);background:#fff;border-radius:10px;padding:12px 14px;font:inherit;font-size:15px;outline:none;transition:border .2s;color:var(--ink);font-weight:500}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--red)}
+.form-note{display:none;background:#fdf6e3;border:1px solid #ecd9a8;color:#7a5b16;border-radius:10px;padding:12px 14px;font-size:13.5px;margin-bottom:14px;font-weight:600}
+.form-note.show{display:block}
+
+/* ================= Footer ================= */
+footer{background:var(--red-deep);color:#f0e2d0;padding:64px 0 28px}
+.foot-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:40px}
+.foot-grid img{width:88px;height:88px;border-radius:50%;background:#fff;padding:6px;margin-bottom:16px}
+.foot-grid h4{font-family:var(--serif-sc);color:#fff;margin-bottom:14px;font-size:16px;font-weight:700}
+.foot-grid p,.foot-grid li{font-size:14px;color:#e8d5c4;line-height:2;font-weight:500}
+.foot-grid ul{list-style:none;padding:0;margin:0}
+.foot-grid i{color:var(--gold-soft);margin-right:8px}
+.copy{border-top:1px solid rgba(255,255,255,.15);margin-top:40px;padding-top:20px;text-align:center;font-size:12.5px;color:#dfc5b0;font-weight:500}
+
+/* ================= Responsive ================= */
+@media (max-width:900px){
+  section{padding:72px 0}
+  .nav-links,.nav-phone{display:none}
+  .burger{display:block}
+  #about .grid,#find .grid,.res-grid,.foot-grid{grid-template-columns:1fr;gap:36px}
+  .items{grid-template-columns:1fr}
+  .frow{grid-template-columns:1fr}
+  .about-badge{left:12px;bottom:-24px}
+  /* 手机端小字间距适当缩小，防止溢出 */
+  .hero-kicker { letter-spacing: 2px; font-size: 13px; }
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<!-- ================= NAV ================= -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#home">
+      <img src="image/logo.png" alt="Royal Asia Logo">
+      <span class="brand-name">
+        <b>Royal Asia</b>
+        <span data-i18n="brandCn">亚 洲 风 味</span>
+      </span>
+    </a>
+    <nav><ul class="nav-links">
+      <li><a href="#home" data-i18n="navHome">首页</a></li>
+      <li><a href="#featured" data-i18n="navFeat">特色推荐</a></li>
+      <li><a href="#about" data-i18n="navAbout">关于我们</a></li>
+      <li><a href="#menu" data-i18n="navMenu">菜单</a></li>
+      <li><a href="#reservation" data-i18n="navBook">预约</a></li>
+    </ul></nav>
+    <div class="nav-right">
+      <a class="nav-phone" href="tel:01224394200"><i class="fa-solid fa-phone"></i>&nbsp;01224 394200</a>
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button id="langZh" class="active">中文</button>
+        <button id="langEn">EN</button>
+      </div>
+      <button class="burger" id="burger" aria-label="menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</header>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#home" data-i18n="navHome">首页</a>
+  <a href="#featured" data-i18n="navFeat">特色推荐</a>
+  <a href="#about" data-i18n="navAbout">关于我们</a>
+  <a href="#menu" data-i18n="navMenu">菜单</a>
+  <a href="#reservation" data-i18n="navBook">预约</a>
+</div>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-kicker">ABERDEEN · BELMONT STREET · TAKEOUT</div>
+    <h1 class="font-display">Royal Asia<span class="font-sc cn" data-i18n="heroCn">亚洲风味</span></h1>
+    <p class="hero-sub" data-i18n="heroSub">地道英式中餐，每日现做；从 Aberdeen 老城把热腾腾的东方美味送到你面前。</p>
+    <div class="hero-cta">
+      <a href="#reservation" class="btn btn-red" data-i18n="heroCta">立即预定</a>
+      <a href="#menu" class="btn btn-ghost" data-i18n="heroCta2">浏览菜单</a>
+    </div>
+  </div>
+  <div class="hero-meta">
+    <div><i class="fa-solid fa-clock"></i><span data-i18n="heroHours">每天营业 · 12–2 &nbsp;·&nbsp; 5–10:30</span></div>
+    <div><i class="fa-solid fa-location-dot"></i><span>17 The Academy, Belmont St, Aberdeen AB10 1LB</span></div>
+  </div>
+</section>
+
+<!-- ================= FEATURED ================= -->
+<section id="featured">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker" data-i18n="featKicker">招牌菜</div>
+      <h2><span class="font-sc" data-i18n="featTitle">招牌推荐</span></h2>
+      <p data-i18n="featSub">每天现做、点单后现炒的几道菜。</p>
+    </div>
+    <div class="swiper featured-swiper">
+      <div class="swiper-wrapper" id="featWrap"></div>
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-button-next"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ABOUT ================= -->
+<section id="about">
+  <div class="wrap">
+    <div class="grid">
+      <div class="about-img">
+         <img src="image/Kitchen.jpg" alt="Our kitchen">
+        <div class="about-badge"><b>100%</b><span data-i18n="aboutBadge">Scottish Beef</span></div>
+      </div>
+      <div class="about-copy">
+        <div class="kicker" data-i18n="aboutKicker" style="color:var(--red);font-weight:700;letter-spacing:3px;font-size:12.5px;margin-bottom:12px">ABOUT ROYAL ASIA</div>
+        <h2 data-i18n="aboutTitle">一家在 Aberdeen 用心做的英式中餐馆</h2>
+        <p data-i18n="aboutText">我们从 Belmont Street 出发，坚持传统英式中餐做法：猛火快炒、现点现做。牛肉只用 100% 苏格兰牛肉，汤底每日熬制，不添加味精。</p>
+        <div class="fact"><i class="fa-solid fa-bullseye"></i><div><b data-i18n="f1t">100% 苏格兰牛肉</b><span data-i18n="f1s">本地采购，肉质更嫩更放心。</span></div></div>
+        <div class="fact"><i class="fa-solid fa-wand-magic-sparkles"></i><div><b data-i18n="f2t">每日新鲜制作</b><span data-i18n="f2s">汤底、酱汁、点心全部当日现做，不卖预制菜。</span></div></div>
+        <div class="fact"><i class="fa-solid fa-utensils"></i><div><b data-i18n="f3t">地道英式中餐</b><span data-i18n="f3s">椒盐、港式咕噜、星洲炒米，都是 Aberdeen 客人熟悉的味道。</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MENU ================= -->
+<section id="menu">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">FULL MENU · 177 ITEMS</div>
+      <h2><span class="font-sc" data-i18n="menuTitle">完整菜单</span></h2>
+      <p data-i18n="menuSub">按分类筛选；点击分类标题可展开/收起。所有菜品均不含米饭、面条或薯条。</p>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div id="accList"></div>
+    <p class="menu-legal" data-i18n="menuNote">面食可选粗面/细面、日式乌冬、拉面、河粉或米粉。大部分菜品含蒜、大豆、面筋、料酒与芝麻油；过敏请提前告知。</p>
+  </div>
+</section>
+
+<!-- ================= FIND US ================= -->
+<section id="find" style="background:var(--paper)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">FIND US</div>
+      <h2><span class="font-sc" data-i18n="findTitle">找到我们</span></h2>
+    </div>
+    <div class="grid">
+      <div id="map"></div>
+      <div class="info-card">
+        <h3 data-i18n="visit">到店自取</h3>
+        <div class="info-row"><i class="fa-solid fa-location-dot"></i><div><b>Royal Asia</b><span>17 The Academy, Belmont St,<br>Aberdeen AB10 1LB, Scotland</span></div></div>
+        <div class="info-row"><i class="fa-solid fa-clock"></i><div><b data-i18n="hours">营业时间（每周 7 天）</b><span>12:00pm – 2:00pm<br>5:00pm – 10:30pm</span></div></div>
+        <div class="info-row"><i class="fa-solid fa-phone"></i><div><b data-i18n="call">电话订购</b><span><a href="tel:01224394200" style="color:var(--red);font-weight:700">01224 394200</a></span></div></div>
+        <div class="info-row"><i class="fa-solid fa-drumstick-bite"></i><div><span data-i18n="beefNote">我们只用 100% 苏格兰牛肉。</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RESERVATION ================= -->
+<section id="reservation">
+  <div class="wrap">
+    <div class="res-grid">
+      <div class="res-side">
+        <div class="kicker" style="color:var(--red);font-weight:700;letter-spacing:3px;font-size:12.5px;margin-bottom:12px">RESERVE / ORDER</div>
+        <h2 data-i18n="resTitle">订位与自取</h2>
+        <p data-i18n="resText">留下你的信息，我们会尽快回电确认。赶时间？直接致电 01224 394200。</p>
+        <div class="line"><i class="fa-solid fa-clock"></i><span data-i18n="resHours">周一至周日 · 12:00–14:00 · 17:00–22:30</span></div>
+      </div>
+      <form id="resForm">
+        <div class="form-note" id="formNote"></div>
+        <div class="frow">
+          <div class="field"><label data-i18n="fName">姓名 *</label><input required name="name" type="text"></div>
+          <div class="field"><label data-i18n="fPhone">电话 *</label><input required name="phone" type="tel"></div>
+        </div>
+        <div class="frow">
+          <div class="field"><label data-i18n="fMail">邮箱</label><input name="email" type="email"></div>
+          <div class="field"><label data-i18n="fPeople">人数</label>
+            <select name="guests"><option>1–2</option><option>3–4</option><option>5–6</option><option>7+</option></select>
+          </div>
+        </div>
+        <div class="frow">
+          <div class="field"><label data-i18n="fDate">日期 *</label><input required name="date" type="date"></div>
+          <div class="field"><label data-i18n="fTime">时间</label><input name="time" type="time"></div>
+        </div>
+        <div class="field"><label data-i18n="fNote">特殊需求</label><textarea name="message" rows="3" placeholder="如：过敏原、外卖还是堂食…"></textarea></div>
+        <button class="btn btn-red" type="submit" style="width:100%;justify-content:center" data-i18n="fSubmit">提交预约</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+                <img src="image/logo.png" alt="Royal Asia Logo">
+      </div>
+      <div>
+        <h4 data-i18n="footVisit">到访</h4>
+        <ul>
+          <li><i class="fa-solid fa-location-dot"></i>17 The Academy, Belmont St, Aberdeen AB10 1LB</li>
+          <li><i class="fa-solid fa-phone"></i><a href="tel:01224394200">01224 394200</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 data-i18n="footHours">营业时间</h4>
+        <ul>
+          <li><i class="fa-solid fa-clock"></i>12:00pm – 2:00pm</li>
+          <li><i class="fa-solid fa-clock"></i>5:00pm – 10:30pm</li>
+          <li data-i18n="foot7">每周 7 天营业</li>
+        </ul>
+      </div>
+    </div>
+    <div class="copy">© <span id="yr"></span> Royal Asia · 亚洲风味 — Aberdeen · <span data-i18n="copy">保留所有权利</span></div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   配置区
+   ============================================================ */
+// 已绑定您的 Web3Forms 密钥
+const WEB3FORMS_KEY = '091b76b4-f66a-48d5-b652-debfccb458e8';
+
+/* ============================================================
+   菜单数据（完整转录自 Royal Asia 菜单 PDF）
+   ============================================================ */
+const MENU = [
+{id:'noodle', en:'Noodles with Soup', cn:'汤面', note:'可选粗面 / 细面 / 乌冬 / 拉面 / 河粉 / 米粉 · No MSG', items:[
+ [1,'Chicken Soup Noodles','9.19'],[2,'Spare Rib Soup Noodles','9.19'],[3,'Crispy Pork Belly Soup Noodles','9.19'],
+ [4,'Beef Brisket Soup Noodles','11.89'],[5,'Beef Shank Soup Noodles','11.89'],[6,'Ox Tail Soup Noodles','11.89'],
+ [7,'Lamb with Dried Bean Curd Sticks Soup Noodles','11.89'],[8,'King Prawn Soup Noodles','12.49'],[9,'Mixed Seafood Soup Noodles','12.49'],
+ [10,'Beef Tripe (Honeycomb) Soup Noodles','11.89'],[11,'Wonton Noodles (King Prawn)','11.89'],[12,'Wonton Noodles (Chicken & Prawn)','9.19'],
+ [13,'Roast Duck Soup Noodles (with bone)','12.49'],[14,'Shredded Pork with Preserved Mustard Greens Noodles','9.19']]},
+{id:'starters', en:'Starters', cn:'小吃', items:[
+ [15,'Chicken Satay on Skewers (3)','4.89'],[16,'Vegetarian Pancake Rolls (3)','3.99'],[17,'Pancake Rolls (3)','4.49'],
+ [18,'Chicken Cheese Rolls (3)','4.59'],[19,'Duck Pancake Rolls','4.59'],[20,'Prawn Toast','5.39'],
+ [21,'Crispy Won Ton (8)','5.39'],[22,'Crispy Aromatic Duck','Quarter £12.00 / Half £23.00']]},
+{id:'ribs', en:'Spare Rib Dishes', cn:'烧排骨', items:[
+ [23,'Spare Ribs in BBQ Sauce','7.89'],[24,'Salt & Chilli Spare Ribs','7.89'],[25,'Honey Chilli Spare Ribs','7.89'],
+ [26,'Peking Spare Ribs','7.89'],[27,'Sweet & Sour Spare Ribs','7.89']]},
+{id:'dimsum', en:'Dim Sum', cn:'点心', items:[
+ [28,'Char Siu Bao (Pork)','3.99'],[29,'Nai Huang Bao','3.99'],[30,'Pork Siu Mai','3.99'],[31,'Shanghai Dumplings','3.99'],
+ [32,'Chicken Feet in Black Bean Sauce','3.99'],[33,'Spare Ribs in Black Bean Sauce','3.99'],
+ [34,'Japanese Chicken Gyoza (6)','5.89'],[35,'Japanese Prawn Gyoza (6)','5.89'],[36,'King Prawn Tempura (4)','5.89']]},
+{id:'saltpepper', en:'Spicy Salt & Pepper Dishes', cn:'椒盐类', items:[
+ [37,'Munchie Box (chicken balls, wings, chips, ribs, pancake roll, prawn toast)','17.19'],
+ [38,'Smoked Shredded Chicken','7.09'],[39,'Salt & Pepper Chips','6.09'],[40,'Salt & Pepper Chicken','7.09'],
+ [41,'Salt & Pepper Chicken & Chips','8.19'],[42,'Salt & Pepper Chicken Wings','7.09'],[43,'Salt & Pepper Chicken Wings & Chips','8.19'],
+ [44,'Salt & Pepper Chicken Balls','7.09'],[45,'Salt & Pepper Chicken Balls & Chips','8.19'],[46,'Salt & Pepper King Prawns','9.99'],
+ [47,'Salt & Pepper King Prawns & Chips','10.99'],[48,'Salt & Pepper Squid','9.59'],[49,'Salt & Pepper Squid & Chips','10.99'],
+ [50,'Salt & Pepper Shredded Beef','8.19'],[51,'Salt & Pepper Shredded Beef & Chips','9.19'],
+ [52,'Salt & Pepper Tofu','6.99'],[53,'Tofu & Chips','7.99']]},
+{id:'chicken', en:'Chicken Dishes', cn:'鸡肉类', items:[
+ [54,'Chinese Chicken Curry','9.99'],[55,'Chicken with Cashew Nuts','9.99'],[56,'Kung Po Chicken','9.99'],
+ [57,'Chicken in Malaysian Satay Sauce','9.99'],[58,'Chicken in Szechuan Sauce','9.99'],[59,'Shredded Chilli Chicken','9.99'],
+ [60,'Chicken in Oyster Sauce','9.99'],[61,'Chicken in Black Bean Sauce','9.99'],[62,'Chicken with Ginger & Spring Onion','9.99'],
+ [63,'Honey Chilli Chicken','9.99'],[64,'Peking Shredded Chicken','9.99'],[65,'Sweet & Sour Chicken (Hong Kong Style)','9.99'],
+ [66,'Sweet & Sour Chicken Balls (8)','9.99']]},
+{id:'beef', en:'Beef Dishes', cn:'牛肉类', items:[
+ [67,'Chinese Beef Curry','10.99'],[68,'Beef with Cashew Nuts','10.99'],[69,'Beef in Malaysian Satay Sauce','10.99'],
+ [70,'Beef in Szechuan Sauce','10.99'],[71,'Shredded Chilli Beef','10.99'],[72,'Beef in Oyster Sauce','10.99'],
+ [73,'Beef in Black Bean Sauce','10.99'],[74,'Beef with Ginger & Spring Onion','10.99'],[75,'Peking Shredded Beef','10.99']]},
+{id:'duck', en:'Duck Dishes', cn:'鸭肉类', items:[
+ [76,'Chinese Duck Curry','11.49'],[77,'Duck with Cashew Nuts','11.49'],[78,'Duck in Malaysian Satay Sauce','11.49'],
+ [79,'Duck in Szechuan Sauce','11.49'],[80,'Duck in Oyster Sauce','11.49'],[81,'Duck in Black Bean Sauce','11.49'],
+ [82,'Duck with Ginger & Spring Onion','11.49']]},
+{id:'pork', en:'Pork Dishes', cn:'猪肉类', items:[
+ [83,'Chinese Pork Curry','9.99'],[84,'Pork with Cashew Nuts','9.99'],[85,'Pork in Malaysian Satay Sauce','9.99'],
+ [86,'Pork in Szechuan Sauce','9.99'],[87,'Pork in Oyster Sauce','9.99'],[88,'Pork in Black Bean Sauce','9.99'],
+ [89,'Pork with Ginger & Spring Onion','9.99']]},
+{id:'house', en:'House Special Dishes', cn:'厨师招牌', items:[
+ [90,'Chinese House Special Curry','10.99'],[91,'House Special with Cashew Nuts','10.99'],[92,'House Special in Malaysian Satay Sauce','10.99'],
+ [93,'House Special in Szechuan Sauce','10.99'],[94,'House Special in Oyster Sauce','10.99'],[95,'House Special in Black Bean Sauce','10.99'],
+ [96,'House Special with Ginger & Spring Onion','10.99']]},
+{id:'prawn', en:'King Prawn Dishes', cn:'大虾类', items:[
+ [97,'Chinese King Prawn Curry','11.69'],[98,'King Prawn with Cashew Nuts','11.69'],[99,'Kung Po King Prawns','11.69'],
+ [100,'King Prawn in Malaysian Satay Sauce','11.69'],[101,'King Prawn in Szechuan Sauce','11.69'],[102,'Peking King Prawn','11.69'],
+ [103,'Honey Chilli King Prawn','11.69'],[104,'King Prawn in Oyster Sauce','11.69'],[105,'King Prawn in Black Bean Sauce','11.69'],
+ [106,'King Prawn with Ginger & Spring Onion','11.69'],[107,'Sweet & Sour King Prawn','11.69']]},
+{id:'seafood', en:'Mixed Seafood Dishes', cn:'海鲜类', items:[
+ [108,'Chinese Seafood Curry','11.99'],[109,'Seafood with Cashew Nuts','11.99'],[110,'Seafood in Malaysian Satay Sauce','11.99'],
+ [111,'Seafood in Szechuan Sauce','11.99'],[112,'Seafood in Oyster Sauce','11.99'],[113,'Seafood in Black Bean Sauce','11.99'],
+ [114,'Seafood with Ginger & Spring Onion','11.99']]},
+{id:'chowmein', en:'Chow Mein / Fried Noodles', cn:'炒面炒粉', items:[
+ [115,'Ho Fun Dry Fried Beef','10.99'],[116,'Ho Fun Mixed Seafood with Sauce','11.99'],[117,'Chicken Chow Mein (Dry)','9.99'],
+ [118,'Beef Chow Mein (Dry)','10.99'],[119,'King Prawn Chow Mein (Dry)','11.99'],[120,'Special Chow Mein (Dry)','10.99'],
+ [121,'Mixed Seafood Chow Mein (Dry)','11.99'],[122,'Singapore Rice Noodles','10.99'],[123,'Malaysian Rice Noodles','10.99'],
+ [124,'Beef Shank Chow Mein (Crispy)','11.99'],[125,'Ox Tail Chow Mein (Crispy)','11.99'],
+ [126,'Brisket of Beef Chow Mein (Crispy)','11.99'],[127,'Lamb Belly Chow Mein (Crispy)','11.99']]},
+{id:'rice', en:'Rice Dishes', cn:'炒饭类', items:[
+ [128,'Special Fried Rice (with Sauce)','10.99'],[129,'Singapore Fried Rice','10.99'],[130,'Shredded Duck Fried Rice','10.99'],
+ [131,'King Prawn Fried Rice','10.99'],[132,'Chicken Fried Rice','8.99'],[133,'Beef Fried Rice','9.99'],
+ [134,'Chicken & Ham Fried Rice','8.99'],[135,'Ham Fried Rice','8.99'],[136,'Mixed Vegetable Fried Rice','7.99'],
+ [137,'Beef Shank Rice Bowl','10.99'],[138,'Pork Belly Rice Bowl','8.99'],[139,'Ox Tail Rice Bowl','10.99'],
+ [140,'Lamb Belly Rice Bowl','10.99']]},
+{id:'thaicurry', en:'Thai Green / Red Curry', cn:'泰式咖喱', items:[
+ [141,'Chicken or Pork','11.39'],[142,'Beef','11.39'],[143,'Special','12.39'],[144,'King Prawns','12.69'],[145,'Mixed Seafood','12.69']]},
+{id:'fish', en:'Fish Dishes', cn:'鱼肉类', items:[
+ [146,'Steamed Sea Bass on Bone','14.29'],[147,'Sea Bass with Szechuan Sauce','14.29'],
+ [148,'Sea Bass with Black Bean Sauce','14.29'],[149,'Sea Bass with Ginger Spring Onion','14.29']]},
+{id:'european', en:'European Dishes (with Chips)', cn:'欧式餐', items:[
+ [150,'Fish & Chips','9.49'],[151,'Chicken Maryland','10.49'],[152,'Chicken Nuggets','7.69'],[153,'Special Omelette','10.39'],
+ [154,'Chicken & Ham Omelette','10.39'],[155,'King Prawn Omelette','9.49'],[156,'Chicken Omelette','9.49'],
+ [157,'Pork Omelette','9.49'],[158,'Ham Omelette','9.49']]},
+{id:'soup', en:'Soup', cn:'汤类', items:[
+ [159,'Hot & Sour Soup','4.20'],[160,'Won Ton Soup (Prawn & Chicken)','4.40'],[161,'Won Ton Soup (Prawn)','4.80'],
+ [162,'Chicken & Sweetcorn Soup','4.20'],[163,'Chicken Noodle Soup','4.20'],[164,'Tom Yum Soup (Chicken)','4.50'],
+ [165,'Tom Yum Soup (Prawn)','4.90']]},
+{id:'sides', en:'Sides & Sauces', cn:'配菜 / 酱汁', items:[
+ [166,'Boiled Rice','3.09'],[167,'Egg Fried Rice','3.49'],[168,'Chips','3.49'],
+ [169,'Fried Soft Noodles (thick or thin, no vegetables)','4.49'],
+ [170,'Fried Soft Noodles (thick or thin) with Beansprouts & Onion','4.69'],
+ [171,'Beansprouts','4.49'],[172,'Broccoli with Oyster Sauce','4.69'],[173,'Fried Mixed Vegetables','4.69'],
+ [174,'Curry Sauce','3.20'],[175,'Sweet & Sour Sauce','3.20'],[176,'Honey Chilli Sauce','3.20'],[177,'Satay Sauce','3.20']]}
+];
+
+// 已根据您的 Git 仓库 image/ 文件夹下的真实图片替换
+const FEATURED = [
+ {img:'image/BBQ Spare Ribs.png', n:'No. 23', name:'Spare Ribs in BBQ Sauce', cn:'烧烤排骨', price:'£7.89'},
+ {img:'image/Beef Brisket Soup Noodles.png', n:'No. 4', name:'Beef Brisket Soup Noodles', cn:'牛腩汤面', price:'£11.89'},
+ {img:'image/Beef in Black Bean Sauce.png', n:'No. 73', name:'Beef in Black Bean Sauce', cn:'豉汁牛肉', price:'£10.99'},
+ {img:'image/Jepanese Gyoza.png', n:'No. 34', name:'Japanese Chicken Gyoza (6)', cn:'日式鸡肉锅贴', price:'£5.89'},
+ {img:'image/King Prawn Ball.png', n:'No. 46', name:'Salt & Pepper King Prawns', cn:'椒盐大虾', price:'£9.99'},
+ {img:'image/King Prawn Chow Mein.png', n:'No. 119', name:'King Prawn Chow Mein (Dry)', cn:'大虾炒面', price:'£11.99'},
+ {img:'image/King Prawn in Black Bean Sauce.jpg', n:'No. 105', name:'King Prawn in Black Bean Sauce', cn:'豉汁大虾', price:'£11.69'},
+ {img:'image/Roast Pork Fried Rice.png', n:'No. 130', name:'Shredded Duck Fried Rice', cn:'鸭丝炒饭', price:'£10.99'},
+ {img:'image/Sekwer Chicken.png', n:'No. 15', name:'Chicken Satay on Skewers (3)', cn:'鸡肉沙爹串', price:'£4.89'},
+ {img:'image/Special Omelette.png', n:'No. 153', name:'Special Omelette', cn:'特色奄列', price:'£10.39'},
+ {img:'image/Special Thai Green Curry.png', n:'No. 141', name:'Thai Green Curry', cn:'泰式绿咖喱', price:'£11.39'},
+ {img:'image/Ton Yang Soup（Prawn）.png', n:'No. 165', name:'Tom Yum Soup (Prawn)', cn:'冬阴功汤 (大虾)', price:'£4.90'}
+];
+
+const I18N = {
+ zh:{brandCn:'亚 洲 风 味',navHome:'首页',navFeat:'特色推荐',navAbout:'关于我们',navMenu:'菜单',navBook:'预约',
+ heroCn:'亚洲风味',heroSub:'地道英式中餐，每日现做；从 Aberdeen 老城把热腾腾的东方美味送到你面前。',heroCta:'立即预定',heroCta2:'浏览菜单',
+ heroHours:'每天营业 · 12–2 · 5–10:30',featKicker:'招牌菜',featTitle:'招牌推荐',featSub:'每天现做、点单后现炒的几道菜。',
+ aboutBadge:'苏格兰牛肉',aboutKicker:'关于皇家亚洲',aboutTitle:'一家在 Aberdeen 用心做的英式中餐馆',
+ aboutText:'我们从 Belmont Street 出发，坚持传统英式中餐做法：猛火快炒、现点现做。牛肉只用 100% 苏格兰牛肉，汤底每日熬制，不添加味精。',
+ f1t:'100% 苏格兰牛肉',f1s:'本地采购，肉质更嫩更放心。',f2t:'每日新鲜制作',f2s:'汤底、酱汁、点心全部当日现做，不卖预制菜。',
+ f3t:'地道英式中餐',f3s:'椒盐、港式咕噜、星洲炒米，都是 Aberdeen 客人熟悉的味道。',
+ menuTitle:'完整菜单',menuSub:'按分类筛选；点击分类标题可展开/收起。所有菜品均不含米饭、面条或薯条。',
+ menuNote:'面食可选粗面/细面、日式乌冬、拉面、河粉或米粉。大部分菜品含蒜、大豆、面筋、料酒与芝麻油；过敏请提前告知。',
+ findTitle:'找到我们',visit:'到店自取',hours:'营业时间（每周 7 天）',call:'电话订购',beefNote:'我们只用 100% 苏格兰牛肉。',
+ resTitle:'订位与自取',resText:'留下你的信息，我们会尽快回电确认。赶时间？直接致电 01224 394200。',resHours:'周一至周日 · 12:00–14:00 · 17:00–22:30',
+ fName:'姓名 *',fPhone:'电话 *',fMail:'邮箱',fPeople:'人数',fDate:'日期 *',fTime:'时间',fNote:'特殊需求',fSubmit:'提交预约',
+ footAbout:'地道英式中餐 · 100% 苏格兰牛肉 · 每日新鲜现做。',footVisit:'到访',footHours:'营业时间',foot7:'每周 7 天营业',copy:'保留所有权利'},
+ en:{brandCn:'ROYAL ASIA',navHome:'Home',navFeat:'Signature',navAbout:'About',navMenu:'Menu',navBook:'Book',
+ heroCn:'亚洲风味',heroSub:'Authentic British-Chinese cooking, made fresh daily — served from Belmont Street, Aberdeen.',
+ heroCta:'Book a Table',heroCta2:'See the Menu',heroHours:'Open daily · 12–2 · 5–10:30',
+ featKicker:'SIGNATURE DISHES',featTitle:'Signature Dishes',featSub:'A few favourites, cooked to order in our wok every day.',
+ aboutBadge:'Scottish Beef',aboutKicker:'ABOUT ROYAL ASIA',aboutTitle:'A proper British-Chinese takeaway in Aberdeen',
+ aboutText:'Cooking British-Chinese food the old way: hot wok, fresh batches, cooked to order. We use only 100% Scottish beef, and make our stocks and sauces fresh — no MSG.',
+ f1t:'100% Scottish Beef',f1s:'Sourced locally — more tender, more honest.',f2t:'Made Fresh Daily',f2s:'Stocks, sauces and dim sum made in house every day. No pre-made food.',
+ f3t:'Authentic British-Chinese',f3s:'Salt & pepper, Hong Kong sweet & sour, Singapore chow mei fun — the flavours Aberdeen knows.',
+ menuTitle:'Full Menu',menuSub:'Filter by category; tap a category to expand or collapse. Rice, noodles and chips are not included.',
+ menuNote:'Noodle soups can be thick or thin egg noodles, udon, ramen, ho fun or rice noodles. Most dishes contain garlic, soya, gluten, cooking wine and sesame oil — please tell us about allergies.',
+ findTitle:'Find Us',visit:'Come & Collect',hours:'Open 7 days a week',call:'Call to order',beefNote:'We use only 100% Scottish Beef.',
+ resTitle:'Reserve / Collect',resText:'Leave your details and we will call you back to confirm. In a hurry? Call 01224 394200.',resHours:'7 days a week · 12:00–14:00 · 17:00–22:30',
+ fName:'Name *',fPhone:'Phone *',fMail:'Email',fPeople:'Guests',fDate:'Date *',fTime:'Time',fNote:'Special requests',fSubmit:'Send Request',
+ footAbout:'British-Chinese takeaway · 100% Scottish beef · fresh daily.',footVisit:'Visit',footHours:'Opening Hours',foot7:'Open 7 days a week',copy:'All rights reserved'}
+};
+
+let lang = localStorage.getItem('ra_lang') || 'zh';
+let activeFilter = 'all';
+
+const CATEGORY_FILTERS = [
+ {id:'all', zh:'全部', en:'All'},
+ {id:'noodle', zh:'汤面类', en:'Soup Noodles'},
+ {id:'starters', zh:'小吃点心', en:'Starters & Dim Sum'},
+ {id:'saltpepper', zh:'椒盐类', en:'Salt & Pepper'},
+ {id:'chicken', zh:'鸡肉类', en:'Chicken'},
+ {id:'beef', zh:'牛肉类', en:'Beef'},
+ {id:'duck', zh:'鸭肉类', en:'Duck'},
+ {id:'pork', zh:'猪肉类', en:'Pork'},
+ {id:'house', zh:'厨师招牌', en:'House Specials'},
+ {id:'prawn', zh:'大虾类', en:'King Prawn'},
+ {id:'seafood', zh:'海鲜类', en:'Seafood'},
+ {id:'chowmein', zh:'炒面类', en:'Chow Mein'},
+ {id:'rice', zh:'炒饭类', en:'Rice'},
+ {id:'curry', zh:'咖喱类', en:'Curry'},
+ {id:'thaicurry', zh:'泰式咖喱', en:'Thai Curry'},
+ {id:'fish', zh:'鱼肉类', en:'Fish'},
+ {id:'european', zh:'欧式餐', en:'European'},
+ {id:'soup', zh:'汤类', en:'Soup'},
+ {id:'sides', zh:'配菜', en:'Sides'}
+];
+
+function matchingCategories(){
+ if(activeFilter==='all') return MENU;
+ if(activeFilter==='curry') return MENU.filter(cat=>cat.items.some(it=>/curry/i.test(it[1])));
+ return MENU.filter(cat=>cat.id===activeFilter);
+}
+
+function renderChips(){
+ const el=document.getElementById('chips');
+ el.innerHTML='';
+ CATEGORY_FILTERS.forEach(f=>{
+   const count = f.id==='all'
+     ? MENU.reduce((s,c)=>s+c.items.length,0)
+     : f.id==='curry'
+       ? MENU.reduce((s,c)=>s+c.items.filter(it=>/curry/i.test(it[1])).length,0)
+       : f.id==='starters'
+         ? MENU.find(c=>c.id==='starters').items.length + MENU.find(c=>c.id==='dimsum').items.length
+         : MENU.find(c=>c.id===f.id)?.items.length || 0;
+   const b=document.createElement('button');
+   b.className='chip'+(f.id===activeFilter?' active':'');
+   b.innerHTML=`${lang==='zh'?f.zh:f.en}<span class="chip-count">${count}</span>`;
+   b.onclick=()=>{activeFilter=f.id;renderChips();renderMenu();};
+   el.appendChild(b);
+ });
+}
+
+function renderMenu(){
+ const list=document.getElementById('accList');
+ list.innerHTML='';
+ const cats=matchingCategories();
+ cats.forEach((cat,i)=>{
+   const items = activeFilter==='curry' ? cat.items.filter(it=>/curry/i.test(it[1])) : cat.items;
+   if(!items.length) return;
+   const block=document.createElement('div');
+   block.className='acc'+(activeFilter!=='all'||i===0?' open':'');
+   block.innerHTML=`
+     <button class="acc-head" type="button">
+       <span class="bar"></span>
+       <span class="titles">
+         <span class="en">${cat.en}</span>
+         <span class="cn">${cat.cn}</span>
+       </span>
+       <span class="cnt">${items.length}</span>
+       <i class="fa-solid fa-chevron-down chev"></i>
+     </button>
+     <div class="acc-body">
+       ${cat.note?`<div class="acc-note">${cat.note}</div>`:''}
+       <div class="items">
+         ${items.map(it=>`<div class="item"><span class="n">${it[0]}</span><span class="nm">${it[1]}</span><span class="dot"></span><span class="pr">£${it[2]}</span></div>`).join('')}
+       </div>
+     </div>`;
+   block.querySelector('.acc-head').onclick=()=>block.classList.toggle('open');
+   list.appendChild(block);
+ });
+}
+
+function renderFeatured(){
+ document.getElementById('featWrap').innerHTML = FEATURED.map(d=>`
+  <div class="swiper-slide">
+    <div class="dish-card">
+      <div class="ph"><img src="${d.img}" alt="${d.name}" onerror="this.style.display='none'; this.parentNode.innerHTML='<span style=\\'color:#999;font-size:12px;text-align:center;padding:20px;\\'>请替换<br>可商用图片</span>'"></div>
+      <div class="body">
+        <div class="num">${d.n}</div>
+        <h3>${lang==='zh'?d.cn:d.name}</h3>
+        <div class="price">${d.price}</div>
+      </div>
+    </div>
+  </div>`).join('');
+}
+
+function applyLang(){
+ document.documentElement.lang = lang==='zh'?'zh-CN':'en';
+ document.getElementById('langZh').classList.toggle('active',lang==='zh');
+ document.getElementById('langEn').classList.toggle('active',lang==='en');
+ document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=I18N[lang][el.dataset.i18n]||el.textContent;});
+ localStorage.setItem('ra_lang',lang);
+ renderFeatured(); renderChips(); renderMenu();
+}
+
+document.getElementById('langZh').onclick=()=>{lang='zh';applyLang();};
+document.getElementById('langEn').onclick=()=>{lang='en';applyLang();};
+
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>20));
+document.getElementById('burger').onclick=()=>document.getElementById('mobileMenu').classList.toggle('open');
+document.querySelectorAll('.mobile-menu a').forEach(a=>a.onclick=()=>document.getElementById('mobileMenu').classList.remove('open'));
+
+document.getElementById('resForm').addEventListener('submit',async(e)=>{
+ e.preventDefault();
+ const note=document.getElementById('formNote');
+ const data=Object.fromEntries(new FormData(e.target).entries());
+ 
+ data.subject = "New Reservation from Royal Asia Website";
+
+ try{
+   const res = await fetch('https://api.web3forms.com/submit',{
+       method:'POST',
+       headers:{'Content-Type':'application/json',Accept:'application/json'},
+       body:JSON.stringify({access_key:WEB3FORMS_KEY,...data})
+   });
+   const result = await res.json();
+   
+   if(result.success){
+       note.textContent = lang==='zh'?'已提交成功，我们会尽快回电确认。':'Submitted — we will call you back shortly.';
+       note.style.background='#e8f5e9';note.style.borderColor='#9ccc9c';note.style.color='#2e6b34';
+       note.classList.add('show'); e.target.reset();
+   } else {
+       throw new Error(result.message || 'Submission failed');
+   }
+ }catch(err){
+   note.textContent = lang==='zh'?'网络错误，请直接致电 01224 394200 预订。':'Network error — please call 01224 394200.';
+   note.style.background='#fdf6e3';note.style.borderColor='#ecd9a8';note.style.color='#7a5b16';
+   note.classList.add('show');
+ }
+});
+
+const map=L.map('map').setView([57.147556,-2.101363],16);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:19}).addTo(map);
+const pin=L.divIcon({className:'seal-pin',iconSize:[22,22],iconAnchor:[11,11],html:'<i></i>'});
+L.marker([57.147556,-2.101363],{icon:pin}).addTo(map)
+ .bindPopup('<b>Royal Asia 亚洲风味</b><br>17 The Academy, Belmont St,<br>Aberdeen AB10 1LB<br>01224 394200');
+
+new Swiper('.featured-swiper',{slidesPerView:1.15,spaceBetween:18,loop:false,
+ autoplay:{delay:3500,disableOnInteraction:false},
+ navigation:{nextEl:'.swiper-button-next',prevEl:'.swiper-button-prev'},
+ pagination:{el:'.swiper-pagination',clickable:true},
+ breakpoints:{768:{slidesPerView:2.15},1024:{slidesPerView:3}}});
+
+document.getElementById('yr').textContent=new Date().getFullYear();
+applyLang();
+</script>
+</body>
+</html>
